@@ -21,6 +21,9 @@ struct ContentView: View {
     @State private var timeRemaining = 100
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
+    @Environment(\.scenePhase) var scenePhase
+    @State private var isActive = true
+
     var body: some View {
         ZStack {
             Image(.background)
@@ -72,9 +75,14 @@ struct ContentView: View {
             }
         }
         .onReceive(timer) { time in
+            guard isActive else { return }
+            
             if timeRemaining > 0 {
                 timeRemaining -= 1
             }
+        }
+        .onChange(of: scenePhase) { _, newValue in
+            isActive = newValue == .active
         }
     }
 
