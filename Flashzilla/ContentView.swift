@@ -49,6 +49,7 @@ struct ContentView: View {
                         .stacked(at: index, in: cards.count)
                     }
                 }
+                .allowsHitTesting(timeRemaining > 0)
             }
 
             if accessibilityDifferentiateWithoutColor {
@@ -76,7 +77,7 @@ struct ContentView: View {
         }
         .onReceive(timer) { time in
             guard isActive else { return }
-            
+
             if timeRemaining > 0 {
                 timeRemaining -= 1
             }
