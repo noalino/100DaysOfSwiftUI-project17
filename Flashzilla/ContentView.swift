@@ -43,12 +43,16 @@ struct ContentView: View {
                     .clipShape(.capsule)
 
                 ZStack {
-                    ForEach(0..<cards.count, id: \.self) { index in
-                        CardView(card: cards[index]) {
+                    ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
+                        CardView(card: card, removal: {
                             withAnimation {
-                                removeCard(at: index)
+                                _ = removeCard(at: index)
                             }
-                        }
+                        }, stack: {
+                            withAnimation {
+                                stackCard(at: index)
+                            }
+                        })
                         .stacked(at: index, in: cards.count)
                         .allowsHitTesting(index == cards.count - 1)
                         .accessibilityHidden(index < cards.count - 1)
@@ -92,7 +96,7 @@ struct ContentView: View {
                     HStack {
                         Button {
                             withAnimation {
-                                removeCard(at: cards.count - 1)
+                                _ = removeCard(at: cards.count - 1)
                             }
                         } label: {
                             Image(systemName: "xmark.circle")
@@ -107,7 +111,7 @@ struct ContentView: View {
 
                         Button {
                             withAnimation {
-                                removeCard(at: cards.count - 1)
+                                stackCard(at: cards.count - 1)
                             }
                         } label: {
                             Image(systemName: "checkmark.circle")
@@ -146,14 +150,23 @@ struct ContentView: View {
         .onAppear(perform: resetCards)
     }
 
-    func removeCard(at index: Int) {
-        guard index >= 0 else { return }
+    func removeCard(at index: Int) -> Card? {
+        guard index >= 0 else { return nil }
 
-        cards.remove(at: index)
+        let card = cards.remove(at: index)
 
         if cards.isEmpty {
             isActive = false
         }
+
+        return card
+    }
+
+    func stackCard(at index: Int) {
+        guard let card = removeCard(at: index) else { return }
+
+        let newCard = Card(prompt: card.prompt, answer: card.answer)
+        cards.insert(newCard, at: 0)
     }
 
     func resetCards() {
