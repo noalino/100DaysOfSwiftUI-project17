@@ -12,6 +12,7 @@ struct CardView: View {
     @Environment(\.accessibilityVoiceOverEnabled) var accessibilityVoiceOverEnabled
     @State private var offset = CGSize.zero
     @State private var isShowingAnswer = false
+    @State private var isDragged = false
 
     let card: Card
     var removal: (() -> Void)? = nil
@@ -29,7 +30,7 @@ struct CardView: View {
                     accessibilityDifferentiateWithoutColor
                     ? nil
                     : RoundedRectangle(cornerRadius: 25)
-                        .fill(offset.width > 0 ? .green : .red)
+                        .fill(isDragged ? (offset.width > 0 ? .green : .red) : .white)
                 )
                 .shadow(radius: 10)
 
@@ -62,6 +63,7 @@ struct CardView: View {
             DragGesture()
                 .onChanged { gesture in
                     offset = gesture.translation
+                    isDragged = true
                 }
                 .onEnded { _ in
                     if abs(offset.width) > 100 {
@@ -69,6 +71,7 @@ struct CardView: View {
                     } else {
                         offset = .zero
                     }
+                    isDragged = false
                 }
         )
         .onTapGesture {
